@@ -270,6 +270,18 @@ export function compress (input, alphabet) {
     .filter(c => c.length)
     .map(c => ({ type: "path", value: c }));
 
+  // A trailing slash after a real path segment (e.g. "/foo/bar/") is
+  // otherwise lost, since the empty string produced by split("/") is
+  // filtered out above. Represent it as an empty-value path segment of
+  // its own, right after the real ones. This reuses the same encoding
+  // already used for an empty query value (e.g. "?foo=") instead of
+  // adding a new always-present bit, so links made before this change
+  // keep decoding exactly as before. Never applies together with an
+  // index suffix, which already reconstructs its own trailing slash.
+  if (pathSegments.length > 0 && !hasIndexHTML && !hasIndexPHP && path.endsWith("/")) {
+    pathSegments.push({ type: "path", value: "" });
+  }
+
   // Add search/query parameters to path segments
   const queryParams = url.search
     ? url.search.slice(1)
