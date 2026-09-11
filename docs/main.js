@@ -4,6 +4,7 @@ import {
   outputAlphabetQR,
   outputAlphabetEmoji
 } from "./alphabets.js";
+import { buildOutputLink, buildQrLink } from "./output-link.js";
 
 let qrGenerate, qrMode, qrCorrection;
 
@@ -18,12 +19,14 @@ if (webPort && webPort !== "80" && webPort !== "443") {
 
 var settings = {
   emoji: false,
-  qr: false
+  qr: false,
+  https: false
 };
 
 const settingsElements = {
   emoji: "#settings-emoji",
-  qr: "#settings-qr"
+  qr: "#settings-qr",
+  https: "#settings-https"
 };
 
 for (const setting in settingsElements) {
@@ -114,8 +117,9 @@ function updateOutput () {
       outputRatioElement.textContent = "Output is the same length as the input";
       outputRatioElement.style.color = "gray";
     }
-    outputLinkElement.textContent = `http://${domain}#${output}`;
-    outputLinkElement.href = `http://${domain}#${output}`;
+    const fullOutputLink = buildOutputLink(domain, output, settings.https);
+    outputLinkElement.textContent = fullOutputLink;
+    outputLinkElement.href = fullOutputLink;
     outputLinkElement.style.color = "";
     if (settings.qr) {
       // Lazyload the qr generator to avoid loading it on a redirect
@@ -134,8 +138,7 @@ function updateOutput () {
       qrCodeImage.style.display = "inline";
       qrCodeCorrectionLevelContainer.style.display = "inline";
 
-      const qrCodeDomain = domain.toUpperCase();
-      const qrCodeLink = `HTTP://${qrCodeDomain}/${compress(input, outputAlphabetQR)}`;
+      const qrCodeLink = buildQrLink(domain, compress(input, outputAlphabetQR), settings.https);
 
       const errorCorrection = correctionLevels[qrCodeCorrectionLevelElement.value];
 
