@@ -4,7 +4,6 @@ import {
   outputAlphabetQR,
   outputAlphabetEmoji
 } from "./alphabets.js";
-import { buildOutputLink, buildQrLink } from "./output-link.js";
 
 let qrGenerate, qrMode, qrCorrection;
 
@@ -117,7 +116,10 @@ function updateOutput () {
       outputRatioElement.textContent = "Output is the same length as the input";
       outputRatioElement.style.color = "gray";
     }
-    const fullOutputLink = buildOutputLink(domain, output, settings.https);
+    // issue #26 - the output link/QR was always built as "http://...", even when
+    // the person generating it wants "https://".
+    const outputScheme = settings.https ? "https" : "http";
+    const fullOutputLink = `${outputScheme}://${domain}#${output}`;
     outputLinkElement.textContent = fullOutputLink;
     outputLinkElement.href = fullOutputLink;
     outputLinkElement.style.color = "";
@@ -138,7 +140,9 @@ function updateOutput () {
       qrCodeImage.style.display = "inline";
       qrCodeCorrectionLevelContainer.style.display = "inline";
 
-      const qrCodeLink = buildQrLink(domain, compress(input, outputAlphabetQR), settings.https);
+      const qrCodeDomain = domain.toUpperCase();
+      const qrCodeScheme = settings.https ? "HTTPS" : "HTTP";
+      const qrCodeLink = `${qrCodeScheme}://${qrCodeDomain}/${compress(input, outputAlphabetQR)}`;
 
       const errorCorrection = correctionLevels[qrCodeCorrectionLevelElement.value];
 
