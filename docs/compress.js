@@ -270,6 +270,11 @@ export function compress (input, alphabet) {
     .filter(c => c.length)
     .map(c => ({ type: "path", value: c }));
 
+  // Keep trailing slashes by pushing an empty path segment.
+  if (pathSegments.length > 0 && !hasIndexHTML && !hasIndexPHP && path.endsWith("/")) {
+    pathSegments.push({ type: "path", value: "" });
+  }
+
   // Add search/query parameters to path segments
   const queryParams = url.search
     ? url.search.slice(1)
