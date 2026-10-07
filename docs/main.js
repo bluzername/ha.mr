@@ -19,7 +19,7 @@ if (webPort && webPort !== "80" && webPort !== "443") {
 var settings = {
   emoji: false,
   qr: false,
-  https: false
+  https: true
 };
 
 const settingsElements = {
